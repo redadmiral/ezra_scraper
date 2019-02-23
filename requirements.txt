@@ -23,4 +23,3 @@ six==1.11.0
 sqlalchemy==1.2.13
 urllib3==1.24.1
 beautifulsoup4
-python-beautifulsoup
