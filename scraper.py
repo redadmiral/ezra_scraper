@@ -3,9 +3,11 @@
 
 import scraperwiki
 import requests_html
-import lxml.html
 import re
 import json
+import locale
+import datetime
+
 
 # Read in a page
 
@@ -17,17 +19,20 @@ site_url = 'https://ezra.de/chronik/'
 r = session.get(site_url)
 r.html.render(sleep = 5)
 
-chronic = r.html.find("#chronic")
-articles = chronic.find("article")
+articles = r.html.find("article")
+#articles = chronic.find("article")
 
 singledate = re.compile("[0-9.]*")
 timespan = re.compile("[0-9\.]*-[0-9\.]*")
 month_year = re.compile("\w*\ [0-9]{4}")
 month = re.compile("[A-Z][a-z]*")
 
-last_year = 0
+last_year = 2000
 
 locale.setlocale(locale.LC_ALL, "de_DE.UTF-8") #for encoding german month names
+
+endDate = ""
+startDate = ""
 
 for article in articles:
 
@@ -36,6 +41,7 @@ for article in articles:
     if singledate.fullmatch(date[0].text):
         if timespan.match(date[0].text):
             startDate = datetime.datetime.strptime(date[0].text.split("-")[0], "%d.%m.%Y")
+            print(last_year)
             last_year = startDate.year
             startDate = startDate.isoformat()
             endDate = datetime.datetime.strptime(date[0].text.split("-")[1], "%d.%m.%Y").isoformat()
@@ -57,7 +63,6 @@ for article in articles:
 
     ## Parse content
     content = article.find("div.chronic__entry__content-wrapper > div > p")[0].text
-    print(content)
 
     ## Parse source
     source_primary = "EZRA Chronik"
@@ -77,8 +82,8 @@ for article in articles:
         unique_keys=["uri"],
         data={
             "sources": json.dumps(
-                {"name": source_primary, "date": "", "url": source_uri_primary},
-                {"name": source_secondary, "date": "", "url": source_uri_secondary}
+                [{"name": source_primary, "date": "", "url": source_uri_primary},
+                {"name": source_secondary, "date": "", "url": source_uri_secondary}]
                 ),
             "description": content,
             "startDate": startDate,
