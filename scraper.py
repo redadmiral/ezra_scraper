@@ -1,13 +1,16 @@
 # This is a template for a Python scraper on morph.io (https://morph.io)
 # including some code snippets below that you should find helpful
 
-import scraperwiki
 import requests_html
 import re
 import json
 import locale
 import datetime
+import os
 
+os.environ["SCRAPERWIKI_DATABASE_NAME"] = "sqlite://dta.sqlite"
+
+import scraperwiki
 
 # Read in a page
 
