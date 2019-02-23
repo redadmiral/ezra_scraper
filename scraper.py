@@ -68,36 +68,59 @@ for article in articles:
     content = article.find("div.chronic__entry__content-wrapper > div > p")[0].text
 
     ## Parse source
-    source_primary = "EZRA Chronik"
-    source_uri_primary = "https://ezra.de/chronik/"
+
+    sources = []
+    sources.append({"name": "EZRA Chronik", "date": "", "uri": "https://ezra.de/chronik/"})
 
     if article.find(".chronic__entry__source"):
         source_secondary = article.find(".chronic__entry__source")[0].text.replace("Quelle: ", "")
         source_uri_secondary = article.find(".chronic__entry__source")[0].links
         source_uri_secondary = str(source_uri_secondary).replace("set()", "")
+        sources.append({"name": source_secondary, "date": "", "uri": source_uri_secondary})
 
 
     uri = startDate + location
     uri.replace(" ", "_")
 
     ## Write data
+    ##scraperwiki.sqlite.save(
+    ##    unique_keys=["uri"],
+    ##    data={
+    ##        "sources": json.dumps(
+    ##            [{"name": source_primary, "date": "", "url": source_uri_primary},
+    ##            {"name": source_secondary, "date": "", "url": source_uri_secondary}]
+    ##            ),
+    ##        "description": content,
+    ##        "startDate": startDate,
+    ##        "endDate": endDate,
+    ##        "locations": json.dumps({"subdivisions": [location, "Thüringen", "Germany"], "latitude": "", "longitude":""}),
+    ##        "iso3166_2": "DE-TH",
+    ##        "uri": uri,
+    ##        "motives": "",
+    ##        "contexts": "",
+    ##        "factums": "",
+    ##        "tags": ""
+    ##    },
+    ##    table_name="data",  # broken right now
+
+## TODO: endDate leer übergeben
+## TODO: last_year Variable zum laufen bringen.
+
     scraperwiki.sqlite.save(
         unique_keys=["uri"],
-        data={
-            "sources": json.dumps(
-                [{"name": source_primary, "date": "", "url": source_uri_primary},
-                {"name": source_secondary, "date": "", "url": source_uri_secondary}]
-                ),
-            "description": content,
-            "startDate": startDate,
-            "endDate": endDate,
-            "locations": json.dumps({"subdivisions": [location, "Thüringen", "Germany"], "latitude": "", "longitude":""}),
-            "iso3166_2": "DE-TH",
-            "uri": uri,
-            "motives": "",
-            "contexts": "",
-            "factums": "",
-            "tags": ""
-        },
-        table_name="data",  # broken right now
-)
+        data={"description": content, "startDate": startDate, "endDate": endDate, "iso3166_2": "DE-TH", "uri": uri},
+        table_name="data",
+    )
+
+    scraperwiki.sqlite.save(
+        unique_keys=["reportURI"],
+        data={"subdivisions": location, "reportURI": uri, "latitude": "", "longitude": ""},
+        table_name="location",
+    )
+
+    for s in sources:
+        scraperwiki.sqlite.save(
+            unique_keys=["reportURI"],
+            data={"publishedDate": s["date"], "name": s["name"], "reportURI": uri},
+            table_name="source",
+            )
