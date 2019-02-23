@@ -8,7 +8,7 @@ import locale
 import datetime
 import os
 
-os.environ["SCRAPERWIKI_DATABASE_NAME"] = "sqlite://data.sqlite"
+os.environ["SCRAPERWIKI_DATABASE_NAME"] = "sqlite:///data.sqlite"
 
 import scraperwiki
 
