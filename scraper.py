@@ -30,29 +30,33 @@ timespan = re.compile("[0-9\.]*-[0-9\.]*")
 month_year = re.compile("\w*\ [0-9]{4}")
 month = re.compile("[A-Z][a-z]*")
 
-last_year = 2000
+locale.setlocale(locale.LC_ALL, "de_DE.UTF-8") #mapping german month names
 
-locale.setlocale(locale.LC_ALL, "de_DE.UTF-8") #for encoding german month names
+endDate = None
+startDate = None
 
-endDate = ""
-startDate = ""
+last_year = 0
 
 for article in articles:
-
     ## Parse dates
     date = article.find(".chronic__entry__date")
-    if singledate.fullmatch(date[0].text):
-        if timespan.match(date[0].text):
+    if singledate.fullmatch(date[0].text) or timespan.fullmatch(date[0].text):
+        if timespan.fullmatch(date[0].text):
             startDate = datetime.datetime.strptime(date[0].text.split("-")[0], "%d.%m.%Y")
-            print(last_year)
             last_year = startDate.year
             startDate = startDate.isoformat()
             endDate = datetime.datetime.strptime(date[0].text.split("-")[1], "%d.%m.%Y").isoformat()
+            print(endDate)
         else:
-            startDate = datetime.datetime.strptime(date[0].text, "%d.%m.%Y").isoformat()
+            startDate = datetime.datetime.strptime(date[0].text, "%d.%m.%Y")
+            last_year = startDate.year
+            startDate = startDate.isoformat()
+            endDate = ""
     elif month.match(date[0].text):
         if month_year.match(date[0].text):
-            startDate = datetime.datetime.strptime(date[0].text, "%B %Y").isoformat()
+            startDate = datetime.datetime.strptime(date[0].text, "%B %Y")
+            last_year = startDate.year
+            startDate = startDate.isoformat()
         else:
             startDate = datetime.datetime.strptime(date[0].text, "%B")
             startDate.replace(year = last_year) #year is not part of the article. It is assumed that the article was published in the same year as the last one.
@@ -70,13 +74,13 @@ for article in articles:
     ## Parse source
 
     sources = []
-    sources.append({"name": "EZRA Chronik", "date": "", "uri": "https://ezra.de/chronik/"})
+    sources.append({"name": "EZRA Chronik", "date": "", "url": "https://ezra.de/chronik/"})
 
     if article.find(".chronic__entry__source"):
         source_secondary = article.find(".chronic__entry__source")[0].text.replace("Quelle: ", "")
         source_uri_secondary = article.find(".chronic__entry__source")[0].links
         source_uri_secondary = str(source_uri_secondary).replace("set()", "")
-        sources.append({"name": source_secondary, "date": "", "uri": source_uri_secondary})
+        sources.append({"name": source_secondary, "date": "", "url": source_uri_secondary})
 
 
     uri = startDate + location
@@ -104,7 +108,7 @@ for article in articles:
     ##    table_name="data",  # broken right now
 
 ## TODO: endDate leer übergeben
-## TODO: last_year Variable zum laufen bringen.
+## TODO: QuellenURIs ergänzen
 
     scraperwiki.sqlite.save(
         unique_keys=["uri"],
@@ -121,6 +125,6 @@ for article in articles:
     for s in sources:
         scraperwiki.sqlite.save(
             unique_keys=["reportURI"],
-            data={"publishedDate": s["date"], "name": s["name"], "reportURI": uri},
+            data={"publishedDate": s["date"], "name": s["name"], "reportURI": uri, "url": s["url"]},
             table_name="source",
             )
