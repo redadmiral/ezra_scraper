@@ -78,7 +78,11 @@ for article in articles:
     if article.find(".chronic__entry__source"):
         source_secondary = article.find(".chronic__entry__source")[0].text.replace("Quelle: ", "")
         source_uri_secondary = article.find(".chronic__entry__source")[0].links
-        source_uri_secondary = str(source_uri_secondary).replace("set()", "")
+        if not source_uri_secondary:
+            source_uri_secondary = ""
+        else:
+            source_uri_secondary = next(iter(source_uri_secondary))
+        print(source_uri_secondary)
         sources.append({"name": source_secondary, "date": "", "url": source_uri_secondary})
 
 
