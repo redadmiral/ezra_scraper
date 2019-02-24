@@ -20,7 +20,7 @@ session = HTMLSession()
 site_url = 'https://ezra.de/chronik/'
 
 r = session.get(site_url)
-r.html.render(sleep = 5)
+r.html.render(sleep = 5) ## Rendering takes a bit.
 
 articles = r.html.find("article")
 #articles = chronic.find("article")
@@ -34,7 +34,6 @@ locale.setlocale(locale.LC_ALL, "de_DE.UTF-8") #mapping german month names
 
 endDate = None
 startDate = None
-
 last_year = 0
 
 for article in articles:
@@ -82,7 +81,6 @@ for article in articles:
             source_uri_secondary = ""
         else:
             source_uri_secondary = next(iter(source_uri_secondary))
-        print(source_uri_secondary)
         sources.append({"name": source_secondary, "date": "", "url": source_uri_secondary})
 
 
