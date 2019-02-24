@@ -46,7 +46,6 @@ for article in articles:
             last_year = startDate.year
             startDate = startDate.isoformat()
             endDate = datetime.datetime.strptime(date[0].text.split("-")[1], "%d.%m.%Y").isoformat()
-            print(endDate)
         else:
             startDate = datetime.datetime.strptime(date[0].text, "%d.%m.%Y")
             last_year = startDate.year
@@ -86,29 +85,7 @@ for article in articles:
     uri = startDate + location
     uri.replace(" ", "_")
 
-    ## Write data
-    ##scraperwiki.sqlite.save(
-    ##    unique_keys=["uri"],
-    ##    data={
-    ##        "sources": json.dumps(
-    ##            [{"name": source_primary, "date": "", "url": source_uri_primary},
-    ##            {"name": source_secondary, "date": "", "url": source_uri_secondary}]
-    ##            ),
-    ##        "description": content,
-    ##        "startDate": startDate,
-    ##        "endDate": endDate,
-    ##        "locations": json.dumps({"subdivisions": [location, "Thüringen", "Germany"], "latitude": "", "longitude":""}),
-    ##        "iso3166_2": "DE-TH",
-    ##        "uri": uri,
-    ##        "motives": "",
-    ##        "contexts": "",
-    ##        "factums": "",
-    ##        "tags": ""
-    ##    },
-    ##    table_name="data",  # broken right now
-
-## TODO: endDate leer übergeben
-## TODO: QuellenURIs ergänzen
+    ## Write DB
 
     scraperwiki.sqlite.save(
         unique_keys=["uri"],
